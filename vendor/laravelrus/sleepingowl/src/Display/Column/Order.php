@@ -1,0 +1,143 @@
+<?php
+
+namespace SleepingOwl\Admin\Display\Column;
+
+use Route;
+use Illuminate\Routing\Router;
+use Illuminate\Database\Eloquent\Model;
+use SleepingOwl\Admin\Display\TableColumn;
+use SleepingOwl\Admin\Traits\OrderableModel;
+use SleepingOwl\Admin\Contracts\WithRoutesInterface;
+
+class Order extends TableColumn implements WithRoutesInterface
+{
+    /**
+     * @var bool
+     */
+    protected $orderable = false;
+
+    /**
+     * @var string
+     */
+    protected $view = 'column.order';
+
+    /**
+     * Register routes.
+     *
+     * @param Router $router
+     */
+    public static function registerRoutes(Router $router)
+    {
+        $router->post('{adminModel}/{adminModelId}/up', [
+            'as' => 'admin.model.move-up',
+            function ($model, $id) {
+                $instance = $model->getRepository()->find($id);
+                $instance->moveUp();
+
+                return back();
+            },
+        ]);
+
+        $router->post('{adminModel}/{adminModelId}/down', [
+            'as' => 'admin.model.move-down',
+            function ($model, $id) {
+                $instance = $model->getRepository()->find($id);
+                $instance->moveDown();
+
+                return back();
+            },
+        ]);
+    }
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setHtmlAttribute('class', 'row-order');
+    }
+
+    /**
+     * @return Model $model
+     * @throws \Exception
+     */
+    public function getModel()
+    {
+        if (! in_array(OrderableModel::class, trait_uses_recursive($class = get_class($this->model)))) {
+            throw new \Exception("Model [$class] should uses trait [SleepingOwl\\Admin\\Traits\\OrderableModel]");
+        }
+
+        return $this->model;
+    }
+
+    /**
+     * Get order value from instance.
+     * @return int
+     */
+    protected function getOrderValue()
+    {
+        return $this->getModel()->getOrderValue();
+    }
+
+    /**
+     * Get models total count.
+     * @return int
+     */
+    protected function totalCount()
+    {
+        return $this->getModelConfiguration()->getRepository()->getQuery()->count();
+    }
+
+    /**
+     * Check if instance is movable up.
+     * @return bool
+     */
+    protected function movableUp()
+    {
+        return $this->getOrderValue() > 0;
+    }
+
+    /**
+     * Get instance move up url.
+     * @return Route
+     */
+    protected function moveUpUrl()
+    {
+        return route('admin.model.move-up', [
+            $this->getModelConfiguration()->getAlias(),
+            $this->getModel()->getKey(),
+        ]);
+    }
+
+    /**
+     * Check if instance is movable down.
+     * @return bool
+     */
+    protected function movableDown()
+    {
+        return $this->getOrderValue() < $this->totalCount() - 1;
+    }
+
+    /**
+     * Get instance move down url.
+     * @return Route
+     */
+    protected function moveDownUrl()
+    {
+        return route('admin.model.move-down', [
+            $this->getModelConfiguration()->getAlias(),
+            $this->getModel()->getKey(),
+        ]);
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return parent::toArray() + [
+            'movableUp' => $this->movableUp(),
+            'moveUpUrl' => $this->moveUpUrl(),
+            'movableDown' => $this->movableDown(),
+            'moveDownUrl' => $this->moveDownUrl(),
+        ];
+    }
+}

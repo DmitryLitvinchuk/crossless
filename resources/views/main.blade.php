@@ -34,44 +34,27 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td  class="hidden-xs"> <img src="14788499.jpg" alt="" class="img-responsive img-34"></td>
-                    <td>
-                        <a href="#">
-                            <span class="glyphicon glyphicon-play-circle"></span>
-                        </a>
-                    </td>
-                    <td>Sheeple Original Mix</td>
-                    <td>Green Velvet, Prok & Fitch</td>
-                    <td>Relief</td>
-                    <td>Tech House</td>
-                    <td  class="hidden-xs">2016-11-18</td>
-                    <td>
-                        <a href="#" class="download">
-                            <span class="glyphicon glyphicon-download"></span>
-                        </a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>2</td>
-                    <td  class="hidden-xs"> <img src="14788499.jpg" alt="" class="img-responsive img-34"></td>
-                    <td>
-                        <a href="#">
-                            <span class="glyphicon glyphicon-play-circle"></span>
-                        </a>
-                    </td>
-                    <td>Sheeple Original Mix</td>
-                    <td>Green Velvet, Prok & Fitch</td>
-                    <td>Relief</td>
-                    <td>Tech House</td>
-                    <td  class="hidden-xs">2016-11-18</td>
-                    <td>
-                        <a href="#" class="upload">
-                            <span class="glyphicon glyphicon-upload"></span>
-                        </a>
-                    </td>
-                  </tr>
+                    @foreach ($toptracks as $toptrack)
+                        <tr>
+                            <td> {{ $toptrack -> top}} </td>
+                            <td  class="hidden-xs"> <img src="{{ $toptrack -> track -> cover }}" alt="" class="img-responsive img-34"></td>
+                            <td>
+                                <a href="#">
+                                    <span class="glyphicon glyphicon-play-circle"></span>
+                                </a>
+                            </td>
+                            <td> {{ $toptrack -> track -> title}} </td>
+                            <td> {{ $toptrack -> track -> artist}} </td>
+                            <td> {{ $toptrack -> track -> label}} </td>
+                            <td> {{ $toptrack -> track -> genre}} </td>
+                            <td> {{ $toptrack -> track -> release}} </td>
+                            <td>
+                                <a href="#" class="upload">
+                                    <span class="glyphicon glyphicon-upload"></span>
+                                </a>
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
               </table> 
           </div>

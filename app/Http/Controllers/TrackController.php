@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Track;
 use App\User;
+use App\TopTrack;
 use Auth;
+use DB;
 
 class TrackController extends Controller
 {
@@ -34,8 +36,8 @@ class TrackController extends Controller
         $number=$html->find('button.playable-play',0)->getAttribute('data-track');
         $audio_link="https://geo-samples.beatport.com/lofi/$number.LOFI.mp3";
         $track = Track::create(['title' => $title, 
-                                'user_id' => Auth::id(), 
-                                'number' => $number, 
+                                'user_id' => NULL, 
+                                'top_track_id' => $number, 
                                 'artist' => $artist, 
                                 'genre' => $genre, 
                                 'bpm' => $bpm, 
@@ -46,6 +48,33 @@ class TrackController extends Controller
                                 'release' => $release, 
                                 'preview' => $audio_link]);
         return view('parser')->with('track', $track);
+    }
+    
+    public function TopTrack(Track $track, TopTrack $topTrack)
+    {
+        $beat = 'https://www.beatport.com/top-100';
+        $html = new \Htmldom($beat);
+        DB::table('top_tracks')->delete();
+        foreach($html->find('li.bucket-item') as $track) {
+            $number = $track->find('button.track-queue',0)->getAttribute('data-track');
+            $top = $track->find('div.buk-track-num',0)->plaintext;
+            $title = $track->find('span.buk-track-primary-title',0)->plaintext;
+            $topTrack = TopTrack::create(['title' => $title,
+                                'id' => $number, 
+                                'top' => $top]);
+            echo $top.' '.$title.'<br>';
+            /*$track = Track::where('number','=',$number);
+            $track -> 'top' = $top100;*/
+        };
+        /*$release=$html->find('li.interior-track-released span.value', 0)->plaintext;
+        $bpm=$html->find('li.interior-track-bpm span.value', 0)->plaintext;
+        $key=$html->find('li.interior-track-key span.value', 0)->plaintext;
+        $genre=$html->find('li.interior-track-genre span.value', 0)->plaintext;
+        $label=$html->find('li.interior-track-labels span.value', 0)->plaintext;
+        $img=$html->find('img.interior-track-release-artwork', 0)->getAttribute('src');;
+        $number=$html->find('button.playable-play',0)->getAttribute('data-track');
+        $audio_link="https://geo-samples.beatport.com/lofi/$number.LOFI.mp3";*/
+        
     }
     
     public function destroy($id)

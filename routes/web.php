@@ -13,6 +13,8 @@
 
 Route::get('/', 'MainController@index');
 
+Route::get('/toptrack', 'TrackController@toptrack');
+
 Route::post('/find', 'TrackController@create');
 
 Route::delete('/ParseNewTrackDelete/{id}', 'TrackController@destroy');

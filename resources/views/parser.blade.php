@@ -50,8 +50,8 @@
                     <td>{{ $track -> genre }}</td>
                     <td  class="hidden-xs">{{ $track -> release }}</td>
                     <td>
-                        <a href="#" class="download">
-                            <span class="glyphicon glyphicon-download"></span>
+                        <a href="#" class="upload">
+                            <span class="glyphicon glyphicon-upload"></span>
                         </a>
                     </td>
                   </tr>

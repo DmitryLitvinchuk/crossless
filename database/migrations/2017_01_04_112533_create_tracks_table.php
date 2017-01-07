@@ -13,11 +13,12 @@ class CreateTracksTable extends Migration
      */
     public function up()
     {
+        
         Schema::create('tracks', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
             $table->increments('id');
-            $table->integer('user_id')->unsigned()->index();
-            $table->integer('top100');
-            $table->integer('number');
+            $table->integer('user_id')->nullable();
+            $table->integer('top_track_id')->unsigned();
             $table->string('title');
             $table->string('remixer');
             $table->string('label');
@@ -28,9 +29,14 @@ class CreateTracksTable extends Migration
             $table->string('cover');
             $table->date('release');
             $table->string('preview');
-            //$table->string('track');
+            $table->string('track')->nullable();
             $table->timestamps();
         });
+        
+        Schema::table('tracks', function($table) {
+            $table->foreign('top_track_id')->references('id')->on('top_tracks');
+        });
+        
     }
 
     /**

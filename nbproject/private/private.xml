@@ -7,6 +7,9 @@
             <file>file:/C:/OpenServer/domains/crossless/routes/web.php</file>
             <file>file:/C:/OpenServer/domains/crossless/app/Http/Controllers/MainController.php</file>
             <file>file:/C:/OpenServer/domains/crossless/resources/views/main.blade.php</file>
+            <file>file:/C:/OpenServer/domains/crossless/app/Track.php</file>
+            <file>file:/C:/OpenServer/domains/crossless/app/User.php</file>
+            <file>file:/C:/OpenServer/domains/crossless/app/TopTrack.php</file>
             <file>file:/C:/OpenServer/domains/crossless/resources/views/parser.blade.php</file>
         </group>
     </open-files>

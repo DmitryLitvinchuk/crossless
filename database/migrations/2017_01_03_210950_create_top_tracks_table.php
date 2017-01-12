@@ -28,8 +28,11 @@ class CreateTopTracksTable extends Migration
      *
      * @return void
      */
+    
     public function down()
     {
-        Schema::dropIfExists('toptracks');
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        Schema::drop('top_tracks');
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
     }
 }

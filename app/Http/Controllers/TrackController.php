@@ -8,6 +8,7 @@ use App\User;
 use App\TopTrack;
 use Auth;
 use DB;
+use Illuminate\Support\Facades\Schema;
 
 class TrackController extends Controller
 {
@@ -54,7 +55,10 @@ class TrackController extends Controller
     {
         $beat = 'https://www.beatport.com/top-100';
         $html = new \Htmldom($beat);
+        //DB::table('top_tracks')->delete();
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
         DB::table('top_tracks')->delete();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
         foreach($html->find('li.bucket-item') as $track) {
             $number = $track->find('button.track-queue',0)->getAttribute('data-track');
             $top = $track->find('div.buk-track-num',0)->plaintext;

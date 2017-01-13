@@ -18,12 +18,12 @@ class AdminController extends Controller
     /**
      * @var \DaveJamesMiller\Breadcrumbs\Manager
      */
-    private $breadcrumbs;
+    protected $breadcrumbs;
 
     /**
      * @var AdminInterface
      */
-    private $admin;
+    protected $admin;
 
     /**
      * @var
@@ -163,9 +163,9 @@ class AdminController extends Controller
 
         if ($createForm instanceof FormInterface) {
             try {
-                $createForm->validateForm($model);
+                $createForm->validateForm($request, $model);
 
-                if ($createForm->saveForm($model) === false) {
+                if ($createForm->saveForm($request, $model) === false) {
                     return redirect()->back()->with([
                         '_redirectBack' => $backUrl,
                     ]);
@@ -259,9 +259,9 @@ class AdminController extends Controller
 
         if ($editForm instanceof FormInterface) {
             try {
-                $editForm->validateForm($model);
+                $editForm->validateForm($request, $model);
 
-                if ($editForm->saveForm($model) === false) {
+                if ($editForm->saveForm($request, $model) === false) {
                     return redirect()->back()->with([
                         '_redirectBack' => $backUrl,
                     ]);
@@ -308,7 +308,6 @@ class AdminController extends Controller
 
     /**
      * @param ModelConfigurationInterface $model
-     *
      * @param Request $request
      *
      * @return bool
@@ -318,7 +317,6 @@ class AdminController extends Controller
     public function inlineEdit(ModelConfigurationInterface $model, Request $request)
     {
         $field = $request->input('name');
-        $value = $request->input('value');
         $id = $request->input('pk');
 
         $display = $model->fireDisplay();
@@ -345,7 +343,7 @@ class AdminController extends Controller
             return;
         }
 
-        $column->save($value);
+        $column->save($request, $model);
 
         $model->fireEvent('updated', false, $item);
     }

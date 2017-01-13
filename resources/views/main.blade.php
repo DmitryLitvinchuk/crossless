@@ -39,8 +39,9 @@
                             <td> {{ $toptrack -> top}} </td>
                             <td  class="hidden-xs"> <img src="{{ $toptrack -> track -> cover }}" alt="" class="img-responsive img-34"></td>
                             <td>
-                                <a href="#">
-                                    <span class="glyphicon glyphicon-play-circle"></span>
+                                <a href="javascript:void(0)" onclick="aud_play_pause(this)">
+                                    <i class="glyphicon control glyphicon-play-circle"></i>
+                                    <audio class="xnine-player" src="{{ $toptrack -> track -> preview }}" preload="auto"></audio>
                                 </a>
                             </td>
                             <td> {{ $toptrack -> track -> title}} </td>
@@ -49,7 +50,7 @@
                             <td> {{ $toptrack -> track -> genre}} </td>
                             <td> {{ $toptrack -> track -> release}} </td>
                             <td>
-                                <a href="#" class="upload">
+                                <a href="tracks/{{ $toptrack -> track -> id }}/change">
                                     <span class="glyphicon glyphicon-upload"></span>
                                 </a>
                             </td>

@@ -2,15 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/C:/OpenServer/domains/crossless/app/Http/Controllers/TrackController.php</file>
-            <file>file:/C:/OpenServer/domains/crossless/routes/web.php</file>
-            <file>file:/C:/OpenServer/domains/crossless/app/Http/Controllers/MainController.php</file>
-            <file>file:/C:/OpenServer/domains/crossless/resources/views/main.blade.php</file>
-            <file>file:/C:/OpenServer/domains/crossless/app/Track.php</file>
-            <file>file:/C:/OpenServer/domains/crossless/app/User.php</file>
-            <file>file:/C:/OpenServer/domains/crossless/app/TopTrack.php</file>
-            <file>file:/C:/OpenServer/domains/crossless/resources/views/parser.blade.php</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

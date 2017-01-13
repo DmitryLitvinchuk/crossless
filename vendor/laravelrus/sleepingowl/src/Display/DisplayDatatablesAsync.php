@@ -4,16 +4,16 @@ namespace SleepingOwl\Admin\Display;
 
 use Request;
 use Illuminate\Routing\Router;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use SleepingOwl\Admin\Display\Column\Link;
 use SleepingOwl\Admin\Display\Column\Text;
 use SleepingOwl\Admin\Display\Column\Email;
-use Illuminate\Http\Request as InlineRequest;
 use SleepingOwl\Admin\Display\Column\Control;
+use Illuminate\Contracts\Foundation\Application;
 use SleepingOwl\Admin\Contracts\WithRoutesInterface;
 use SleepingOwl\Admin\Contracts\ModelConfigurationInterface;
-use SleepingOwl\Admin\Contracts\Display\ColumnEditableInterface;
 
 class DisplayDatatablesAsync extends DisplayDatatables implements WithRoutesInterface
 {
@@ -26,64 +26,20 @@ class DisplayDatatablesAsync extends DisplayDatatables implements WithRoutesInte
      */
     public static function registerRoutes(Router $router)
     {
-        $router->get('{adminModel}/async/{adminDisplayName?}', [
-            'as' => 'admin.model.async',
-            function (ModelConfigurationInterface $model, $name = null) {
-                $display = $model->fireDisplay();
-                if ($display instanceof DisplayTabbed) {
-                    $display = static::findDatatablesAsyncByName($display, $name);
-                }
+        $routeName = 'admin.display.async';
+        if (! $router->has($routeName)) {
+            $router->get('{adminModel}/async/{adminDisplayName?}', [
+                'as' => $routeName,
+                'uses' => 'SleepingOwl\Admin\Http\Controllers\DisplayController@async'
+            ]);
+        }
 
-                if ($display instanceof DisplayDatatablesAsync) {
-                    return $display->renderAsync();
-                }
-
-                abort(404);
-            },
-        ]);
-        $router->post('{adminModel}/async/{adminDisplayName?}', [
-            'as' => 'admin.model.async.inline',
-            function (ModelConfigurationInterface $model, InlineRequest $request) {
-                $field = $request->input('name');
-                $value = $request->input('value');
-                $id = $request->input('pk');
-
-                $display = $model->fireDisplay();
-
-                /** @var ColumnEditableInterface|null $column */
-                $column = $display->getColumns()->all()->filter(function ($column) use ($field) {
-                    return ($column instanceof ColumnEditableInterface) and $field == $column->getName();
-                })->first();
-
-                if (is_null($column)) {
-                    abort(404);
-                }
-
-                $model->saveColumn($column, $value, $id);
-
-                if ($display instanceof DisplayDatatablesAsync) {
-                    return $display->renderAsync();
-                }
-            },
-        ]);
-    }
-
-    /**
-     * Find DisplayDatatablesAsync in tabbed display by name.
-     *
-     * @param DisplayTabbed $display
-     * @param string|null $name
-     *
-     * @return DisplayDatatablesAsync|null
-     */
-    protected static function findDatatablesAsyncByName(DisplayTabbed $display, $name)
-    {
-        $tabs = $display->getTabs();
-        foreach ($tabs as $tab) {
-            $content = $tab->getContent();
-            if ($content instanceof self && $content->getName() === $name) {
-                return $content;
-            }
+        $routeName = 'admin.display.async.inlineEdit';
+        if (! $router->has($routeName)) {
+            $router->post('{adminModel}/async/{adminDisplayName?}', [
+                'as' => $routeName,
+                'uses' => 'SleepingOwl\Admin\Http\Controllers\AdminController@inlineEdit'
+            ]);
         }
     }
 
@@ -133,7 +89,7 @@ class DisplayDatatablesAsync extends DisplayDatatables implements WithRoutesInte
         array_unshift($attributes, $this->getName());
         array_unshift($attributes, $this->getModelConfiguration()->getAlias());
 
-        $this->setHtmlAttribute('data-url', route('admin.model.async', $attributes));
+        $this->setHtmlAttribute('data-url', route('admin.display.async', $attributes));
     }
 
     /**
@@ -178,9 +134,12 @@ class DisplayDatatablesAsync extends DisplayDatatables implements WithRoutesInte
 
     /**
      * Render async request.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
      * @return array
      */
-    public function renderAsync()
+    public function renderAsync(\Illuminate\Http\Request $request)
     {
         $query = $this->getRepository()->getQuery();
         $totalCount = $query->count();
@@ -191,29 +150,28 @@ class DisplayDatatablesAsync extends DisplayDatatables implements WithRoutesInte
         }
 
         $this->modifyQuery($query);
-        $this->applySearch($query);
-        $this->applyColumnSearch($query);
+        $this->applySearch($query, $request);
 
         if (is_null($this->distinct)) {
             $filteredCount = $query->count();
         }
 
-        $this->applyOrders($query);
-        $this->applyOffset($query);
+        $this->applyOffset($query, $request);
         $collection = $query->get();
 
-        return $this->prepareDatatablesStructure($collection, $totalCount, $filteredCount);
+        return $this->prepareDatatablesStructure($request, $collection, $totalCount, $filteredCount);
     }
 
     /**
      * Apply offset and limit to the query.
      *
      * @param $query
+     * @param \Illuminate\Http\Request $request
      */
-    protected function applyOffset($query)
+    protected function applyOffset($query, \Illuminate\Http\Request $request)
     {
-        $offset = Request::input('start', 0);
-        $limit = Request::input('length', 10);
+        $offset = $request->input('start', 0);
+        $limit = $request->input('length', 10);
 
         if ($limit == -1) {
             return;
@@ -226,10 +184,11 @@ class DisplayDatatablesAsync extends DisplayDatatables implements WithRoutesInte
      * Apply search to the query.
      *
      * @param Builder $query
+     * @param \Illuminate\Http\Request $request
      */
-    protected function applySearch(Builder $query)
+    protected function applySearch(Builder $query, \Illuminate\Http\Request $request)
     {
-        $search = Request::input('search.value');
+        $search = $request->input('search.value');
         if (empty($search)) {
             return;
         }
@@ -238,49 +197,28 @@ class DisplayDatatablesAsync extends DisplayDatatables implements WithRoutesInte
             $columns = $this->getColumns()->all();
             foreach ($columns as $column) {
                 if (in_array(get_class($column), $this->searchableColumns)) {
-                    $name = $column->getName();
-                    if ($this->repository->hasColumn($name)) {
-                        $query->orWhere($name, 'like', '%'.$search.'%');
-                    }
+                    $query->orWhere($column->getName(), 'like', '%'.$search.'%');
                 }
             }
         });
     }
 
     /**
-     * @param Builder $query
-     */
-    protected function applyColumnSearch(Builder $query)
-    {
-        $queryColumns = Request::input('columns', []);
-
-        foreach ($queryColumns as $index => $queryColumn) {
-            $search = array_get($queryColumn, 'search.value');
-            $fullSearch = array_get($queryColumn, 'search');
-            $column = $this->getColumns()->all()->get($index);
-            $columnFilter = array_get($this->getColumnFilters()->all(), $index);
-
-            if (! is_null($columnFilter) && ! is_null($column)) {
-                $columnFilter->apply($this->repository, $column, $query, $search, $fullSearch);
-            }
-        }
-    }
-
-    /**
      * Convert collection to the datatables structure.
      *
+     * @param \Illuminate\Http\Request $request
      * @param array|Collection $collection
      * @param int $totalCount
      * @param int $filteredCount
      *
      * @return array
      */
-    protected function prepareDatatablesStructure(Collection $collection, $totalCount, $filteredCount)
+    protected function prepareDatatablesStructure(\Illuminate\Http\Request $request, Collection $collection, $totalCount, $filteredCount)
     {
         $columns = $this->getColumns();
 
         $result = [];
-        $result['draw'] = Request::input('draw', 0);
+        $result['draw'] = $request->input('draw', 0);
         $result['recordsTotal'] = $totalCount;
         $result['recordsFiltered'] = $filteredCount;
         $result['data'] = [];

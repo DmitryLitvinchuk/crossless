@@ -100,5 +100,23 @@
 
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="dist/js/bootstrap.min.js"></script>
+    <script>
+    function aud_play_pause(object) {
+        var myAudio = object.querySelector(".xnine-player");
+        var myIcon = object.querySelector(".control");
+        if (myAudio.paused) {
+            myIcon.className = "glyphicon control glyphicon-play-circle";
+            myAudio.play();
+        } else {
+            myIcon.className = "glyphicon control glyphicon-play-circle";
+            myAudio.pause();
+        }
+        $("audio").on("play", function() {
+        $("audio").not(this).each(function(index, audio) {
+            audio.pause();
+        });
+    });
+    }
+</script>
   </body>
 </html>

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use SleepingOwl\Admin\Contracts\Validable;
 use SleepingOwl\Admin\Contracts\WithModel;
 use Illuminate\Contracts\Support\Renderable;
-use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Validation\ValidationException;
 use SleepingOwl\Admin\Contracts\FormInterface;
 use SleepingOwl\Admin\Contracts\Initializable;
 use SleepingOwl\Admin\Traits\VisibleCondition;
@@ -222,31 +222,31 @@ class DisplayTab implements TabInterface, DisplayInterface, FormInterface
     }
 
     /**
+     * @param \Illuminate\Http\Request $request
      * @param ModelConfigurationInterface $model
      *
-     * @return Validator|null
+     * @throws ValidationException
      */
-    public function validateForm(ModelConfigurationInterface $model)
+    public function validateForm(\Illuminate\Http\Request $request, ModelConfigurationInterface $model = null)
     {
         if (($content = $this->getContent()) instanceof FormInterface) {
-            $content->validateForm($model);
+            $content->validateForm($request, $model);
         }
     }
 
     /**
      * Save model.
      *
+     * @param \Illuminate\Http\Request $request
      * @param ModelConfigurationInterface $model
      *
-     * @return $this
+     * @return void
      */
-    public function saveForm(ModelConfigurationInterface $model)
+    public function saveForm(\Illuminate\Http\Request $request, ModelConfigurationInterface $model = null)
     {
         if (($content = $this->getContent()) instanceof FormInterface) {
-            $content->saveForm($model);
+            $content->saveForm($request, $model);
         }
-
-        return $this;
     }
 
     /**
@@ -313,22 +313,26 @@ class DisplayTab implements TabInterface, DisplayInterface, FormInterface
     }
 
     /**
-     * Save form item.
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return void
      */
-    public function save()
+    public function save(\Illuminate\Http\Request $request)
     {
         if (($content = $this->getContent()) instanceof FormElementInterface) {
-            $content->save();
+            $content->save($request);
         }
     }
 
     /**
-     * Save form item.
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return void
      */
-    public function afterSave()
+    public function afterSave(\Illuminate\Http\Request $request)
     {
         if (($content = $this->getContent()) instanceof FormElementInterface) {
-            $content->afterSave();
+            $content->afterSave($request);
         }
     }
 

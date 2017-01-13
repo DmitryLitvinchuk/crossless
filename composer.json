@@ -9,7 +9,8 @@
         "laravel/framework": "5.3.*",
         "yangqi/htmldom": "dev-master",
         "illuminate/html": "^5.0",
-        "laravelrus/sleepingowl": "4.*@dev"
+        "laravelrus/sleepingowl": "4.*@dev",
+        "happyworm/jPlayer": "2.*"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

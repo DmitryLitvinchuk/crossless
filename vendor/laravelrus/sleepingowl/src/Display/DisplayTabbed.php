@@ -6,7 +6,6 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use SleepingOwl\Admin\Traits\FormElements;
 use Illuminate\Contracts\Support\Renderable;
-use Illuminate\Validation\ValidationException;
 use SleepingOwl\Admin\Contracts\FormInterface;
 use SleepingOwl\Admin\Traits\VisibleCondition;
 use SleepingOwl\Admin\Contracts\DisplayInterface;
@@ -181,30 +180,31 @@ class DisplayTabbed implements DisplayInterface, FormInterface
     }
 
     /**
+     * @param \Illuminate\Http\Request $request
      * @param ModelConfigurationInterface $model
      *
      * @return void
-     * @throws ValidationException
      */
-    public function validateForm(ModelConfigurationInterface $model)
+    public function validateForm(\Illuminate\Http\Request $request, ModelConfigurationInterface $model = null)
     {
-        $this->getTabs()->each(function ($tab) use ($model) {
+        $this->getTabs()->each(function ($tab) use ($request, $model) {
             if ($tab instanceof FormInterface) {
-                $tab->validateForm($model);
+                $tab->validateForm($request, $model);
             }
         });
     }
 
     /**
+     * @param \Illuminate\Http\Request $request
      * @param ModelConfigurationInterface $model
      *
      * @return void
      */
-    public function saveForm(ModelConfigurationInterface $model)
+    public function saveForm(\Illuminate\Http\Request $request, ModelConfigurationInterface $model = null)
     {
-        $this->getTabs()->each(function (TabInterface $tab) use ($model) {
+        $this->getTabs()->each(function (TabInterface $tab) use ($request, $model) {
             if ($tab instanceof FormInterface) {
-                $tab->saveForm($model);
+                $tab->saveForm($request, $model);
             }
         });
     }

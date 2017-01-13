@@ -2,8 +2,6 @@
 
 namespace SleepingOwl\Admin\Form\Element;
 
-use Request;
-
 class Checkbox extends NamedFormElement
 {
     /**
@@ -11,13 +9,13 @@ class Checkbox extends NamedFormElement
      */
     protected $view = 'form.element.checkbox';
 
-    public function save()
+    /**
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    public function prepareValue($value)
     {
-        $name = $this->getName();
-        if (! Request::has($name)) {
-            Request::merge([$name => 0]);
-        }
-
-        parent::save();
+        return parent::prepareValue((bool) $value);
     }
 }

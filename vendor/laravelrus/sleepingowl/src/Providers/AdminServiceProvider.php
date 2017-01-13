@@ -2,20 +2,20 @@
 
 namespace SleepingOwl\Admin\Providers;
 
-use Illuminate\Contracts\View\Factory as ViewFactory;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\AliasLoader;
 use Illuminate\Routing\Router;
-use Illuminate\Support\ServiceProvider;
 use SleepingOwl\Admin\AliasBinder;
-use SleepingOwl\Admin\Contracts\Display\TableHeaderColumnInterface;
-use SleepingOwl\Admin\Contracts\FormButtonsInterface;
-use SleepingOwl\Admin\Contracts\RepositoryInterface;
-use SleepingOwl\Admin\Contracts\Widgets\WidgetsRegistryInterface;
-use SleepingOwl\Admin\Exceptions\TemplateException;
-use SleepingOwl\Admin\Model\ModelConfigurationManager;
-use SleepingOwl\Admin\Widgets\WidgetsRegistry;
 use Symfony\Component\Finder\Finder;
+use Illuminate\Foundation\AliasLoader;
+use Illuminate\Support\ServiceProvider;
+use SleepingOwl\Admin\Widgets\WidgetsRegistry;
+use SleepingOwl\Admin\Exceptions\TemplateException;
+use SleepingOwl\Admin\Contracts\RepositoryInterface;
+use Illuminate\Contracts\View\Factory as ViewFactory;
+use SleepingOwl\Admin\Contracts\FormButtonsInterface;
+use SleepingOwl\Admin\Model\ModelConfigurationManager;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use SleepingOwl\Admin\Contracts\Widgets\WidgetsRegistryInterface;
+use SleepingOwl\Admin\Contracts\Display\TableHeaderColumnInterface;
 
 class AdminServiceProvider extends ServiceProvider
 {
@@ -26,9 +26,9 @@ class AdminServiceProvider extends ServiceProvider
 
     public function register()
     {
+        $this->registerWysiwyg();
         $this->registerTemplate();
         $this->initializeNavigation();
-        $this->registerWysiwyg();
         $this->registerAliases();
 
         $this->app->singleton('sleeping_owl.widgets', function () {
@@ -73,6 +73,10 @@ class AdminServiceProvider extends ServiceProvider
 
             return $app->make($class);
         });
+
+        if (file_exists($assetsFile = __DIR__.'/../../resources/assets.php')) {
+            include $assetsFile;
+        }
     }
 
     /**

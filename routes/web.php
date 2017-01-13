@@ -13,6 +13,8 @@
 
 Route::get('/', 'MainController@index');
 
+
+
 Route::get('/toptrack', 'TrackController@toptrack');
 
 Route::post('/find', 'TrackController@create');
@@ -26,3 +28,5 @@ Route::post('/addnewtrack/', 'TrackController@AddNewTrack');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index');
+
+Route::get('tracks/{id}/change', 'TrackController@change');

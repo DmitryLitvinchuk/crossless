@@ -2,8 +2,6 @@
 
 namespace SleepingOwl\Admin\Repository;
 
-use Cache;
-use Schema;
 use Illuminate\Database\Eloquent\Model;
 use SleepingOwl\Admin\Contracts\RepositoryInterface;
 use SleepingOwl\Admin\Exceptions\RepositoryException;
@@ -201,24 +199,6 @@ class BaseRepository implements RepositoryInterface
     public function restore($id)
     {
         $this->findOnlyTrashed($id)->restore();
-    }
-
-    /**
-     * Check if model's table has column.
-     *
-     * @param string $column
-     *
-     * @return bool
-     */
-    public function hasColumn($column)
-    {
-        $table = $this->getModel()->getTable();
-
-        $columns = Cache::remember('admin.columns.'.$table, 60, function () use ($table) {
-            return Schema::getColumnListing($table);
-        });
-
-        return array_search($column, $columns) !== false;
     }
 
     /**
